@@ -1,10 +1,11 @@
 *stakeholders.txt*  Charismatic, overachieving, dynamically expansive place-holders
                     Author: Tom Link, micathom at gmail com
 
-Older templating plugins for VIM often used simple markup for placeholders 
-(e.g. <+VARIABLE_NAME+>). A placeholder was simply a pattern you could easily 
-search for. Some newer templating plugins support dynamic replacement of 
-placeholders with the same name.
+Older templating plugins for VIM often used simple markup for 
+placeholders (e.g. <+VARIABLE_NAME+>). A placeholder was simply a 
+pattern you could easily search for. Some newer templating plugins (e.g. 
+xptemplate vimscript #2611) support dynamic replacement of placeholders 
+with the same name.
 
 The stakeholders plugin turns your old templating system into a high 
 potential overachiever. It provides dynamic replacement of placeholders 
@@ -48,6 +49,8 @@ See :help vimball for details.
 ========================================================================
 Contents~
 
+        :StakeholdersEnable ................... |:StakeholdersEnable|
+        :StakeholdersDisable .................. |:StakeholdersDisable|
         g:stakeholders#def .................... |g:stakeholders#def|
         g:stakeholders#expansion .............. |g:stakeholders#expansion|
         g:stakeholders#exclude_rx ............. |g:stakeholders#exclude_rx|
@@ -57,15 +60,30 @@ Contents~
         stakeholders#EnableInRange ............ |stakeholders#EnableInRange()|
         stakeholders#EnableBuffer ............. |stakeholders#EnableBuffer()|
         stakeholders#DisableBuffer ............ |stakeholders#DisableBuffer()|
-        stakeholders#immediate#Init ........... |stakeholders#immediate#Init()|
+        stakeholders#CursorMoved .............. |stakeholders#CursorMoved()|
         stakeholders#delayed#Init ............. |stakeholders#delayed#Init()|
+        stakeholders#immediate#Init ........... |stakeholders#immediate#Init()|
+
+
+========================================================================
+plugin/stakeholders.vim~
+
+                                                    *:StakeholdersEnable*
+:StakeholdersEnable[!]
+    Enable stakeholders for the current buffer.
+    With the optional '!', enable stakeholders globally.
+
+                                                    *:StakeholdersDisable*
+:StakeholdersDisable[!]
+    Disable stakeholders for the current buffer.
+    With the optional '!', disable stakeholders globally.
 
 
 ========================================================================
 autoload/stakeholders.vim~
 
                                                     *g:stakeholders#def*
-g:stakeholders#def             (default: {'rx': '<+\([[:alpha:]_]\+\)+>'})
+g:stakeholders#def             (default: {'rx': '<+\([[:alnum:]_]\+\)\(/.\{-}\)\?+>'})
     The placeholder definition. A dictionary with the fields:
       rx ....... A |regexp| that matches placeholders.
 
@@ -102,13 +120,8 @@ stakeholders#EnableBuffer()
 stakeholders#DisableBuffer()
     Disable stakeholders for the current buffer.
 
-
-========================================================================
-autoload/stakeholders/immediate.vim~
-
-                                                    *stakeholders#immediate#Init()*
-stakeholders#immediate#Init(ph_def)
-    Expand placeholders as the user types.
+                                                    *stakeholders#CursorMoved()*
+stakeholders#CursorMoved(mode)
 
 
 ========================================================================
@@ -120,5 +133,13 @@ stakeholders#delayed#Init(ph_def)
     the moves to another line.
 
 
+========================================================================
+autoload/stakeholders/immediate.vim~
 
-vim:tw=78:fo=tcq2:isk=!-~,^*,^|,^":ts=8:ft=help:norl:
+                                                    *stakeholders#immediate#Init()*
+stakeholders#immediate#Init(ph_def)
+    Expand placeholders as the user types.
+
+
+
+vim:tw=78:fo=w2croql:isk=!-~,^*,^|,^":ts=8:ft=help:norl:

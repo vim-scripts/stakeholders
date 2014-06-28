@@ -1,14 +1,14 @@
 " @Author:      Tom Link (mailto:micathom AT gmail com?subject=[vim])
 " @License:     GPL (see http://www.gnu.org/licenses/gpl.txt)
 " @Created:     2010-11-02.
-" @Last Change: 2010-11-20.
-" @Revision:    770
+" @Last Change: 2012-10-23.
+" @Revision:    782
 
 
 if !exists('g:stakeholders#def')
     " The placeholder definition. A dictionary with the fields:
     "   rx ....... A |regexp| that matches placeholders.
-    let g:stakeholders#def = {'rx': '<+\([[:alpha:]_]\+\)+>'}   "{{{2
+    let g:stakeholders#def = {'rx': '<+\([[:alnum:]_]\+\)\(/.\{-}\)\?+>'}   "{{{2
 endif
 
 
@@ -127,9 +127,9 @@ function! stakeholders#EnableBuffer() "{{{3
         let b:stakeholders = exists('b:stakeholders_def') ? 
                     \ b:stakeholders_def : g:stakeholders#def
         " echom "DBG stakeholders#EnableBuffer" b:stakeholders
-        autocmd stakeholders CursorMoved,CursorMovedI <buffer> call s:CursorMoved(mode())
-        " autocmd stakeholders InsertEnter,InsertLeave <buffer> call s:CursorMoved(mode())
-        call s:CursorMoved('n')
+        autocmd stakeholders CursorMoved,CursorMovedI <buffer> call stakeholders#CursorMoved(mode())
+        " autocmd stakeholders InsertEnter,InsertLeave <buffer> call stakeholders#CursorMoved(mode())
+        call stakeholders#CursorMoved('n')
     endif
 endf
 
@@ -197,6 +197,7 @@ function! s:SetParts(ph_def, line, col) "{{{3
                 if prelen <= a:col
                     let a:ph_def.pre .= pre
                     let placeholder = strpart(part, phbeg)
+                    let placeholder = substitute(placeholder, '^<+[^/]*\zs/.\{-}\ze+>$', '', '')
                     let a:ph_def.placeholder = placeholder
                     let a:ph_def.post = join(parts[i + 1 : -1], '')
                     " TLogVAR a:ph_def
@@ -225,7 +226,7 @@ function! s:Col(col, mode) "{{{3
 endf
 
 
-function! s:CursorMoved(mode) "{{{3
+function! stakeholders#CursorMoved(mode) "{{{3
     let pos = getpos('.')
     " TLogVAR a:mode, pos
     try
@@ -297,12 +298,13 @@ function! s:Init(ph_def, pos) "{{{3
                 \ .'\)\$'
     " TLogVAR a:ph_def
     if exists('b:stakeholders_range')
-        let range = join(b:stakeholders_range, ',')
+        let llnum = line('$')
+        let range = join(map(copy(b:stakeholders_range), 'min([v:val, llnum])'), ',')
     else
         let range = ''
     endif
     try
-        exec 'keepjumps' range .'g/'. escape(a:ph_def.placeholder_rx, '/') .'/let a:ph_def.lines[line(".")] = getline(".")'
+        exec 'silent! keepjumps' range .'g/'. escape(a:ph_def.placeholder_rx, '/') .'/let a:ph_def.lines[line(".")] = getline(".")'
     finally
         keepjumps call setpos('.', a:pos)
     endtry
